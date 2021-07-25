@@ -1320,17 +1320,17 @@ func TestNoEchoOldServer(t *testing.T) {
 // Trust Server Tests
 
 var (
-	oSeed = []byte("SOAL7GTNI66CTVVNXBNQMG6V2HTDRWC3HGEP7D2OUTWNWSNYZDXWFOX4SU")
-	aSeed = []byte("SAAASUPRY3ONU4GJR7J5RUVYRUFZXG56F4WEXELLLORQ65AEPSMIFTOJGE")
-	uSeed = []byte("SUAMK2FG4MI6UE3ACF3FK3OIQBCEIEZV7NSWFFEW63UXMRLFM2XLAXK4GY")
+	oSeed = []byte("534fad468e61ccae64dbafe711bb7fb7d86b93c4594a9c6db645c89d4a7f1adfbd1c34a069732ac9ac29bb42")
+	aSeed = []byte("53414f5d348393d7e4ae5e2d3cd453c2c3415db60a204c6d31cbb666971e2d72cee7eddc06a17ad6193303c3")
+	uSeed = []byte("5355f2013ee17d27bfefe4eaa0a6b90b3a5a39b189c286d2ede43ad4c1343b1a958cf0a6e955a38dc64badeb")
 
-	aJWT = "eyJ0eXAiOiJqd3QiLCJhbGciOiJlZDI1NTE5In0.eyJqdGkiOiJLWjZIUVRXRlY3WkRZSFo3NklRNUhPM0pINDVRNUdJS0JNMzJTSENQVUJNNk5PNkU3TUhRIiwiaWF0IjoxNTQ0MDcxODg5LCJpc3MiOiJPRDJXMkk0TVZSQTVUR1pMWjJBRzZaSEdWTDNPVEtGV1FKRklYNFROQkVSMjNFNlA0NlMzNDVZWSIsInN1YiI6IkFBUFFKUVVQS1ZYR1c1Q1pINUcySEZKVUxZU0tERUxBWlJWV0pBMjZWRFpPN1dTQlVOSVlSRk5RIiwidHlwZSI6ImFjY291bnQiLCJuYXRzIjp7ImxpbWl0cyI6eyJzdWJzIjotMSwiY29ubiI6LTEsImltcG9ydHMiOi0xLCJleHBvcnRzIjotMSwiZGF0YSI6LTEsInBheWxvYWQiOi0xLCJ3aWxkY2FyZHMiOnRydWV9fX0.8o35JPQgvhgFT84Bi2Z-zAeSiLrzzEZn34sgr1DIBEDTwa-EEiMhvTeos9cvXxoZVCCadqZxAWVwS6paAMj8Bg"
+	aJWT = "eyJ0eXAiOiJKV1QiLCJhbGciOiJzZWNwMjU2azEtbmtleSJ9.eyJqdGkiOiJXNlA0NzNSQ09TNktUT0RKUzVEU0oyUUFBQzY0RU9MT1hZVFY3TVRYUDZFSEdZTEhPRFlRIiwiaWF0IjoxNjI3MTk0MjQzLCJpc3MiOiI0ZjAzYzVhMzhiODhlNjkyYjVkZjIzZWU0NGZjNDdiMmVhN2NmYzlhM2JmZTc0NTQ3Y2RmOGZhZjRlMTA2NjY1MTU0MGM5N2YiLCJzdWIiOiI0MTAyMDg1NmQ2NmM1MWJkODJmOWViNjkxOWNlMTAyYWMzNTJlNWMwZDlhMjIwNzc5NjhkMDYwOTk0ZjFlYWY4ODc5ZTg2ZmUiLCJuYXRzIjp7ImxpbWl0cyI6eyJzdWJzIjotMSwiZGF0YSI6LTEsInBheWxvYWQiOi0xLCJpbXBvcnRzIjotMSwiZXhwb3J0cyI6LTEsIndpbGRjYXJkcyI6dHJ1ZSwiY29ubiI6LTEsImxlYWYiOi0xfSwiZGVmYXVsdF9wZXJtaXNzaW9ucyI6eyJwdWIiOnt9LCJzdWIiOnt9fSwidHlwZSI6ImFjY291bnQiLCJ2ZXJzaW9uIjoyfX0.1gvSuZbvwlZm7fYjuH7hd8uAAuf61FOUklOGZTemSf1bK8VIM-ucsMMGUSQxYrvx9fXE9mZS5IMeA1ugP8-EpwE"
 
-	uJWT = "eyJ0eXAiOiJqd3QiLCJhbGciOiJlZDI1NTE5In0.eyJqdGkiOiJBSFQzRzNXRElDS1FWQ1FUWFJUTldPRlVVUFRWNE00RFZQV0JGSFpJQUROWEZIWEpQR0FBIiwiaWF0IjoxNTQ0MDcxODg5LCJpc3MiOiJBQVBRSlFVUEtWWEdXNUNaSDVHMkhGSlVMWVNLREVMQVpSVldKQTI2VkRaTzdXU0JVTklZUkZOUSIsInN1YiI6IlVBVDZCV0NTQ1dMVUtKVDZLNk1CSkpPRU9UWFo1QUpET1lLTkVWUkZDN1ZOTzZPQTQzTjRUUk5PIiwidHlwZSI6InVzZXIiLCJuYXRzIjp7InB1YiI6e30sInN1YiI6e319fQ._8A1XM88Q2kp7XVJZ42bQuO9E3QPsNAGKtVjAkDycj8A5PtRPby9UpqBUZzBwiJQQO3TUcD5GGqSvsMm6X8hCQ"
+	uJWT = "eyJ0eXAiOiJKV1QiLCJhbGciOiJzZWNwMjU2azEtbmtleSJ9.eyJqdGkiOiJISDU1MlVETzdDSlFVRVVCRjMyR1hZVU9CTlhNNkRRU1BVTVROUlI3UUM0SkFaTE5RSVlBIiwiaWF0IjoxNjI3MTk0MjQzLCJpc3MiOiI0MTAyMDg1NmQ2NmM1MWJkODJmOWViNjkxOWNlMTAyYWMzNTJlNWMwZDlhMjIwNzc5NjhkMDYwOTk0ZjFlYWY4ODc5ZTg2ZmUiLCJzdWIiOiI1NTAyMThkZDVmYjBjOTNlN2U2MDYwMzZmNTIyOTlmZGQ2YjRhMzdkOTk2YzJhZGIzNzE1MWY3NGFkOTgyMzQyYzhkNDU5MTAiLCJuYXRzIjp7InB1YiI6e30sInN1YiI6e30sInN1YnMiOi0xLCJkYXRhIjotMSwicGF5bG9hZCI6LTEsInR5cGUiOiJ1c2VyIiwidmVyc2lvbiI6Mn19.WydKKY3VKyD3mqwyw1tLwlY7HMU1Wuf6qXc6GXuOdGx4EIQXA87_qSk1UXQbPsAMQEnPtqZQJlVTUGkfDHY4eQE"
 
 	chained = `
 -----BEGIN NATS USER JWT-----
-eyJ0eXAiOiJqd3QiLCJhbGciOiJlZDI1NTE5In0.eyJqdGkiOiJBSFQzRzNXRElDS1FWQ1FUWFJUTldPRlVVUFRWNE00RFZQV0JGSFpJQUROWEZIWEpQR0FBIiwiaWF0IjoxNTQ0MDcxODg5LCJpc3MiOiJBQVBRSlFVUEtWWEdXNUNaSDVHMkhGSlVMWVNLREVMQVpSVldKQTI2VkRaTzdXU0JVTklZUkZOUSIsInN1YiI6IlVBVDZCV0NTQ1dMVUtKVDZLNk1CSkpPRU9UWFo1QUpET1lLTkVWUkZDN1ZOTzZPQTQzTjRUUk5PIiwidHlwZSI6InVzZXIiLCJuYXRzIjp7InB1YiI6e30sInN1YiI6e319fQ._8A1XM88Q2kp7XVJZ42bQuO9E3QPsNAGKtVjAkDycj8A5PtRPby9UpqBUZzBwiJQQO3TUcD5GGqSvsMm6X8hCQ
+eyJ0eXAiOiJKV1QiLCJhbGciOiJzZWNwMjU2azEtbmtleSJ9.eyJqdGkiOiJISDU1MlVETzdDSlFVRVVCRjMyR1hZVU9CTlhNNkRRU1BVTVROUlI3UUM0SkFaTE5RSVlBIiwiaWF0IjoxNjI3MTk0MjQzLCJpc3MiOiI0MTAyMDg1NmQ2NmM1MWJkODJmOWViNjkxOWNlMTAyYWMzNTJlNWMwZDlhMjIwNzc5NjhkMDYwOTk0ZjFlYWY4ODc5ZTg2ZmUiLCJzdWIiOiI1NTAyMThkZDVmYjBjOTNlN2U2MDYwMzZmNTIyOTlmZGQ2YjRhMzdkOTk2YzJhZGIzNzE1MWY3NGFkOTgyMzQyYzhkNDU5MTAiLCJuYXRzIjp7InB1YiI6e30sInN1YiI6e30sInN1YnMiOi0xLCJkYXRhIjotMSwicGF5bG9hZCI6LTEsInR5cGUiOiJ1c2VyIiwidmVyc2lvbiI6Mn19.WydKKY3VKyD3mqwyw1tLwlY7HMU1Wuf6qXc6GXuOdGx4EIQXA87_qSk1UXQbPsAMQEnPtqZQJlVTUGkfDHY4eQE
 ------END NATS USER JWT------
 
 ************************* IMPORTANT *************************
@@ -1338,7 +1338,7 @@ NKEY Seed printed below can be used to sign and prove identity.
 NKEYs are sensitive and should be treated as secrets.
 
 -----BEGIN USER NKEY SEED-----
-SUAMK2FG4MI6UE3ACF3FK3OIQBCEIEZV7NSWFFEW63UXMRLFM2XLAXK4GY
+5355f2013ee17d27bfefe4eaa0a6b90b3a5a39b189c286d2ede43ad4c1343b1a958cf0a6e955a38dc64badeb
 ------END USER NKEY SEED------
 `
 )
@@ -1348,18 +1348,17 @@ func runTrustServer() *server.Server {
 	pub, _ := kp.PublicKey()
 	opts := natsserver.DefaultTestOptions
 	opts.Port = TEST_PORT
-	opts.TrustedKeys = []string{string(pub)}
+	opts.TrustedKeys = []string{pub}
 	s := RunServerWithOptions(&opts)
 	mr := &server.MemAccResolver{}
 	akp, _ := nkeys.FromSeed(aSeed)
 	apub, _ := akp.PublicKey()
-	mr.Store(string(apub), aJWT)
+	mr.Store(apub, aJWT)
 	s.SetAccountResolver(mr)
 	return s
 }
 
 func TestBasicUserJWTAuth(t *testing.T) {
-	t.Skip("FIXME: generate test data")
 	if server.VERSION[0] == '1' {
 	}
 	ts := runTrustServer()
@@ -1400,7 +1399,6 @@ func TestBasicUserJWTAuth(t *testing.T) {
 }
 
 func TestUserCredentialsTwoFiles(t *testing.T) {
-	t.Skip("FIXME: generate test data")
 	if server.VERSION[0] == '1' {
 		t.Skip()
 	}
@@ -1421,7 +1419,6 @@ func TestUserCredentialsTwoFiles(t *testing.T) {
 }
 
 func TestUserCredentialsChainedFile(t *testing.T) {
-	t.Skip("FIXME: generate test data")
 	if server.VERSION[0] == '1' {
 		t.Skip()
 	}
@@ -1575,7 +1572,6 @@ func TestExpiredAuthentication(t *testing.T) {
 // Opts.Secure = false, but the fix removed the check on Opts.Secure to decide
 // if we need to save off the hostname that we connected to first.
 func TestUserCredentialsChainedFileNotFoundError(t *testing.T) {
-	t.Skip("FIXME: generate test data")
 	if server.VERSION[0] == '1' {
 		t.Skip()
 	}
@@ -1633,12 +1629,11 @@ func TestUserCredentialsChainedFileNotFoundError(t *testing.T) {
 }
 
 func TestNkeyAuth(t *testing.T) {
-	t.Skip("FIXME: generate test data")
 	if server.VERSION[0] == '1' {
 		t.Skip()
 	}
 
-	seed := []byte("SUAKYRHVIOREXV7EUZTBHUHL7NUMHPMAS7QMDU3GTIUWEI5LDNOXD43IZY")
+	seed := []byte("534fad468e61ccae64dbafe711bb7fb7d86b93c4594a9c6db645c89d4a7f1adfbd1c34a069732ac9ac29bb42")
 	kp, _ := nkeys.FromSeed(seed)
 	pub, _ := kp.PublicKey()
 
@@ -1703,7 +1698,6 @@ func createTmpFile(t *testing.T, content []byte) string {
 }
 
 func TestNKeyOptionFromSeed(t *testing.T) {
-	t.Skip("FIXME: generate test data")
 	if _, err := NkeyOptionFromSeed("file_that_does_not_exist"); err == nil {
 		t.Fatal("Expected error got none")
 	}
@@ -1720,7 +1714,7 @@ func TestNKeyOptionFromSeed(t *testing.T) {
 
 	seedFile = createTmpFile(t, []byte(`
 		# Invalid seed
-		SUBADSEED
+		5355f201
 	`))
 	// Make sure that we detect SU (trim space) but it still fails because
 	// this is not a valid NKey.

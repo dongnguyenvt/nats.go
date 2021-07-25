@@ -95,10 +95,12 @@ github.com/dgryski/go-bitstream v0.0.0-20180413035011-3522498ce2c8/go.mod h1:VMa
 github.com/dgryski/go-sip13 v0.0.0-20181026042036-e10d5fee7954/go.mod h1:vAd38F8PWV+bWy6jNmig1y/TA+kYO4g3RSRF0IAv0no=
 github.com/dlclark/regexp2 v1.2.0/go.mod h1:2pZnwuY/m+8K6iRw6wQdMtk+rH5tNGR1i55kozfMjCc=
 github.com/docker/docker v1.4.2-0.20180625184442-8e610b2b55bf/go.mod h1:eEKB0N0r5NX/I1kEveEz05bcu8tLC/8azJZsviup8Sk=
-github.com/dongnguyenvt/nats-server/v2 v2.3.3 h1:dpp6DoJMETiMImO7yv3FxpBcr+ckaxkMIoS1cf+7g2c=
-github.com/dongnguyenvt/nats-server/v2 v2.3.3/go.mod h1:BFfRqKs8Q0q3H6+s5Jwv3jAkeUnq2l+XeatgYXmcxrY=
-github.com/dongnguyenvt/nkeys v0.3.3 h1:n6v18c/iklLqRyY+a+ArM+7YOihTp8DQm8A3Wuhw+xM=
-github.com/dongnguyenvt/nkeys v0.3.3/go.mod h1:bulIXXfrY6FW2NNnc0+LXK1tkAd10L6yOo7mpwUviW4=
+github.com/dongnguyenvt/jwt/v2 v2.0.5 h1:grJQpMHQKzzFlaVSjPsAQgYmS/58WnO9CxpIPoTLha4=
+github.com/dongnguyenvt/jwt/v2 v2.0.5/go.mod h1:I9kaK5u/UCEdPaLwURE5UVJqykJqFBy/5D6meXAPlf4=
+github.com/dongnguyenvt/nats-server/v2 v2.3.5 h1:ozaw8hq775vkU9PK1brLnU7MNDSIk8yhllrBuytaL80=
+github.com/dongnguyenvt/nats-server/v2 v2.3.5/go.mod h1:UlGGLJbLY4jxmSWhR0F++5918tj5oY9Js3c8yn6rZz8=
+github.com/dongnguyenvt/nkeys v0.3.5 h1:w4ex9/dZLa9b3CRGX7csR6WXpeujzAtAp9Q3l58Pe3o=
+github.com/dongnguyenvt/nkeys v0.3.5/go.mod h1:bulIXXfrY6FW2NNnc0+LXK1tkAd10L6yOo7mpwUviW4=
 github.com/dop251/goja v0.0.0-20200721192441-a695b0cdd498/go.mod h1:Mw6PkjjMXWbTj+nnj4s3QPXq1jaT0s5pC0iFD4+BOAA=
 github.com/eclipse/paho.mqtt.golang v1.2.0/go.mod h1:H9keYFcgq3Qr5OUJm/JZI/i6U7joQ8SYLhZwfeOo6Ts=
 github.com/edsrzf/mmap-go v1.0.0/go.mod h1:YO35OhQPt3KJa3ryjFM5Bs14WD66h8eGKpfaBNrHW5M=
@@ -242,8 +244,6 @@ github.com/naoina/go-stringutil v0.1.0/go.mod h1:XJ2SJL9jCtBh+P9q5btrd/Ylo8XwT/h
 github.com/naoina/toml v0.1.2-0.20170918210437-9fafd6967416/go.mod h1:NBIhNtsFMo3G2szEBne+bO4gS192HuIYRqfvOWb4i1E=
 github.com/nats-io/jwt v1.2.2 h1:w3GMTO969dFg+UOKTmmyuu7IGdusK+7Ytlt//OYH/uU=
 github.com/nats-io/jwt v1.2.2/go.mod h1:/xX356yQA6LuXI9xWW7mZNpxgF2mBmGecH+Fj34sP5Q=
-github.com/nats-io/jwt/v2 v2.0.2 h1:ejVCLO8gu6/4bOKIHQpmB5UhhUJfAQw55yvLWpfmKjI=
-github.com/nats-io/jwt/v2 v2.0.2/go.mod h1:VRP+deawSXyhNjXmxPCHskrR6Mq50BqpEI5SEcNiGlY=
 github.com/nats-io/nats.go v1.11.1-0.20210623165838-4b75fc59ae30/go.mod h1:BPko4oXsySz4aSWeFgOHLZs3G4Jq4ZAyE6/zMCxRT6w=
 github.com/nats-io/nkeys v0.2.0/go.mod h1:XdZpAbhgyyODYqjTawOnIOI7VlbKSarI9Gfy1tqEu/s=
 github.com/nats-io/nuid v1.0.1 h1:5iA8DT8V7q8WK2EScv2padNa/rTESc1KdnPw4TC2paw=
