@@ -102,52 +102,32 @@ func main() {
 
 	benchmark = bench.NewBenchmark("NATS", *numSubs, *numPubs)
 
-	var startwg sync.WaitGroup
 	var donewg sync.WaitGroup
 	var subj = args[0]
 
 	donewg.Add(*numPubs + *numSubs)
 
 	// Run Subscribers first
-	startwg.Add(*numSubs)
 	for i := 0; i < *numSubs; i++ {
-		nc, err := nats.Connect(*urls, opts...)
+		s, err := NewSubscriber(*urls, subj, *numMsgs, *msgSize, &donewg, opts...)
 		if err != nil {
-			log.Fatalf("Can't connect: %v\n", err)
+			log.Fatalf("NewSubscriber failed: %v", err)
 		}
-		defer nc.Close()
-
-		s := Subscriber{
-			numMsgs: *numMsgs,
-			msgSize: *msgSize,
-			subject: subj,
-		}
-		go s.run(nc, &startwg, &donewg)
+		go s.run()
 	}
-	startwg.Wait()
 
 	// Now Publishers
-	startwg.Add(*numPubs)
 	pubCounts := bench.MsgsPerClient(*numMsgs, *numPubs)
 	for i := 0; i < *numPubs; i++ {
-		nc, err := nats.Connect(*urls, opts...)
+		p, err := NewPublisher(*urls, subj, pubCounts[i], *msgSize, &donewg, opts...)
 		if err != nil {
-			log.Fatalf("Can't connect: %v\n", err)
+			log.Fatalf("NewPublisher failed: %v", err)
 		}
-		defer nc.Close()
-
-		p := Publisher{
-			numMsgs: pubCounts[i],
-			msgSize: *msgSize,
-			subject: subj,
-		}
-
-		go p.run(nc, &startwg, &donewg)
+		go p.run()
 	}
 
 	log.Printf("Starting benchmark [msgs=%d, msgsize=%d, pubs=%d, subs=%d]\n", *numMsgs, *msgSize, *numPubs, *numSubs)
 
-	startwg.Wait()
 	donewg.Wait()
 
 	benchmark.Close()
