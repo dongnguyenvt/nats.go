@@ -12,11 +12,25 @@ type Publisher struct {
 	numMsgs int
 	msgSize int
 	subject string
+	donewg  *sync.WaitGroup
+	nc      *nats.Conn
 }
 
-func (p Publisher) run(nc *nats.Conn, startwg, donewg *sync.WaitGroup) {
-	startwg.Done()
+func NewPublisher(urls, subject string, numMsgs, msgSize int, donewg *sync.WaitGroup, opts ...nats.Option) (*Publisher, error) {
+	nc, err := nats.Connect(urls, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &Publisher{
+		subject: subject,
+		numMsgs: numMsgs,
+		msgSize: msgSize,
+		donewg:  donewg,
+		nc:      nc,
+	}, nil
+}
 
+func (p *Publisher) run() {
 	var msg []byte
 	if p.msgSize > 0 {
 		msg = make([]byte, p.msgSize)
@@ -25,10 +39,11 @@ func (p Publisher) run(nc *nats.Conn, startwg, donewg *sync.WaitGroup) {
 	start := time.Now()
 
 	for i := 0; i < p.numMsgs; i++ {
-		nc.Publish(p.subject, msg)
+		p.nc.Publish(p.subject, msg)
 	}
-	nc.Flush()
-	benchmark.AddPubSample(bench.NewSample(p.numMsgs, p.msgSize, start, time.Now(), nc))
+	p.nc.Flush()
+	benchmark.AddPubSample(bench.NewSample(p.numMsgs, p.msgSize, start, time.Now(), p.nc))
 
-	donewg.Done()
+	p.donewg.Done()
+	p.nc.Close()
 }
