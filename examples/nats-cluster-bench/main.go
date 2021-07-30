@@ -20,7 +20,6 @@ import (
 	"log"
 	"os"
 	"sync"
-	"time"
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/bench"
@@ -105,6 +104,7 @@ func main() {
 
 	var startwg sync.WaitGroup
 	var donewg sync.WaitGroup
+	var subj = args[0]
 
 	donewg.Add(*numPubs + *numSubs)
 
@@ -117,7 +117,12 @@ func main() {
 		}
 		defer nc.Close()
 
-		go runSubscriber(nc, &startwg, &donewg, *numMsgs, *msgSize)
+		s := Subscriber{
+			numMsgs: *numMsgs,
+			msgSize: *msgSize,
+			subject: subj,
+		}
+		go s.run(nc, &startwg, &donewg)
 	}
 	startwg.Wait()
 
@@ -131,7 +136,13 @@ func main() {
 		}
 		defer nc.Close()
 
-		go runPublisher(nc, &startwg, &donewg, pubCounts[i], *msgSize)
+		p := Publisher{
+			numMsgs: pubCounts[i],
+			msgSize: *msgSize,
+			subject: subj,
+		}
+
+		go p.run(nc, &startwg, &donewg)
 	}
 
 	log.Printf("Starting benchmark [msgs=%d, msgsize=%d, pubs=%d, subs=%d]\n", *numMsgs, *msgSize, *numPubs, *numSubs)
@@ -148,51 +159,4 @@ func main() {
 		ioutil.WriteFile(*csvFile, []byte(csv), 0644)
 		fmt.Printf("Saved metric data in csv file %s\n", *csvFile)
 	}
-}
-
-func runPublisher(nc *nats.Conn, startwg, donewg *sync.WaitGroup, numMsgs int, msgSize int) {
-	startwg.Done()
-
-	args := flag.Args()
-	subj := args[0]
-	var msg []byte
-	if msgSize > 0 {
-		msg = make([]byte, msgSize)
-	}
-
-	start := time.Now()
-
-	for i := 0; i < numMsgs; i++ {
-		nc.Publish(subj, msg)
-	}
-	nc.Flush()
-	benchmark.AddPubSample(bench.NewSample(numMsgs, msgSize, start, time.Now(), nc))
-
-	donewg.Done()
-}
-
-func runSubscriber(nc *nats.Conn, startwg, donewg *sync.WaitGroup, numMsgs int, msgSize int) {
-	args := flag.Args()
-	subj := args[0]
-
-	received := 0
-	ch := make(chan time.Time, 2)
-	sub, _ := nc.Subscribe(subj, func(msg *nats.Msg) {
-		received++
-		if received == 1 {
-			ch <- time.Now()
-		}
-		if received >= numMsgs {
-			ch <- time.Now()
-		}
-	})
-	sub.SetPendingLimits(-1, -1)
-	nc.Flush()
-	startwg.Done()
-
-	start := <-ch
-	end := <-ch
-	benchmark.AddSubSample(bench.NewSample(numMsgs, msgSize, start, end, nc))
-	nc.Close()
-	donewg.Done()
 }
