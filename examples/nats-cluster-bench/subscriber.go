@@ -12,27 +12,48 @@ type Subscriber struct {
 	numMsgs int
 	msgSize int
 	subject string
+	donewg  *sync.WaitGroup
+	times   chan time.Time
+	nc      *nats.Conn
 }
 
-func (s Subscriber) run(nc *nats.Conn, startwg, donewg *sync.WaitGroup) {
+func NewSubscriber(urls, subject string, numMsgs, msgSize int, donewg *sync.WaitGroup, opts ...nats.Option) (*Subscriber, error) {
+	nc, err := nats.Connect(urls, opts...)
+	if err != nil {
+		return nil, err
+	}
+	s := &Subscriber{
+		subject: subject,
+		numMsgs: numMsgs,
+		msgSize: msgSize,
+		donewg:  donewg,
+		times:   make(chan time.Time, 2),
+		nc:      nc,
+	}
+	return s, s.init()
+}
+
+func (s *Subscriber) init() error {
 	received := 0
-	ch := make(chan time.Time, 2)
-	sub, _ := nc.Subscribe(s.subject, func(msg *nats.Msg) {
+	sub, _ := s.nc.Subscribe(s.subject, func(msg *nats.Msg) {
 		received++
 		if received == 1 {
-			ch <- time.Now()
+			s.times <- time.Now()
 		}
 		if received >= s.numMsgs {
-			ch <- time.Now()
+			s.times <- time.Now()
 		}
 	})
-	sub.SetPendingLimits(-1, -1)
-	nc.Flush()
-	startwg.Done()
+	if err := sub.SetPendingLimits(-1, -1); err != nil {
+		return err
+	}
+	return s.nc.Flush()
+}
 
-	start := <-ch
-	end := <-ch
-	benchmark.AddSubSample(bench.NewSample(s.numMsgs, s.msgSize, start, end, nc))
-	nc.Close()
-	donewg.Done()
+func (s *Subscriber) run() {
+	start := <-s.times
+	end := <-s.times
+	benchmark.AddSubSample(bench.NewSample(s.numMsgs, s.msgSize, start, end, s.nc))
+	s.nc.Close()
+	s.donewg.Done()
 }
