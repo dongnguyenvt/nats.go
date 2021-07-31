@@ -60,7 +60,27 @@ start()
   docker run --rm -p 4222:4222 --name natserver1 --net $NETWORK_NAME -d "$NAT_SERVER_IMAGE" -p 4222
 }
 
+start_client()
+{
+  # build nats client binary
+  if [ ! -x nats-client ]
+  then
+    ./build.sh
+  fi
+  # kill previous run
+  kill `ps aux | grep nats-client | grep -v grep | awk '{print $2}'` > /dev/null 2>&1 || true
+  # start all clients
+  port=8080
+  for i in `seq 1 12`
+  do
+    ./nats-client -p $port &
+    port=$((port+1))
+  done
+  # TODO: ping clients to ensure it healthy
+}
+
 create_network
 cleanup
 #start_cluster
 start
+start_client
