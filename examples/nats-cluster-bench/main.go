@@ -108,6 +108,10 @@ func main() {
 	donewg.Add(*numSubs)
 
 	// Run Subscribers first
+	// This order is important for getting reliable benchmark result
+	// if publishers are running first, we are losing messages to void
+	// also waiting for Subscribers are done serves as synchronization method to signal test end.
+	// Note that we don't need to explicitly synchronize waiting for publishers.
 	for i := 0; i < *numSubs; i++ {
 		s, err := NewSubscriber(*urls, subj, *numMsgs, *msgSize, opts...)
 		if err != nil {
