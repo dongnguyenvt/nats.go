@@ -105,7 +105,7 @@ func main() {
 	var donewg sync.WaitGroup
 	var subj = args[0]
 
-	donewg.Add(*numPubs + *numSubs)
+	donewg.Add(*numSubs)
 
 	// Run Subscribers first
 	for i := 0; i < *numSubs; i++ {
@@ -119,11 +119,13 @@ func main() {
 	// Now Publishers
 	pubCounts := bench.MsgsPerClient(*numMsgs, *numPubs)
 	for i := 0; i < *numPubs; i++ {
-		p, err := NewPublisher(*urls, subj, pubCounts[i], *msgSize, &donewg, opts...)
+		p, err := NewPublisher(*urls, subj, pubCounts[i], *msgSize, opts...)
 		if err != nil {
 			log.Fatalf("NewPublisher failed: %v", err)
 		}
-		go p.run()
+		go func() {
+			benchmark.AddPubSample(p.run())
+		}()
 	}
 
 	log.Printf("Starting benchmark [msgs=%d, msgsize=%d, pubs=%d, subs=%d]\n", *numMsgs, *msgSize, *numPubs, *numSubs)
