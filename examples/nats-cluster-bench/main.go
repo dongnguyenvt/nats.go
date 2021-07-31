@@ -14,16 +14,22 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
+	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/bench"
-	"github.com/nats-io/nats.go/examples/nats-cluster-bench/client"
+	"github.com/nats-io/nats.go/examples/nats-cluster-bench/client/request"
 )
 
 // Some sane defaults
@@ -48,14 +54,14 @@ var benchmark *bench.Benchmark
 
 func main() {
 	var urls = flag.String("s", nats.DefaultURL, "The nats server URLs (separated by comma)")
-	var tls = flag.Bool("tls", false, "Use TLS Secure Connection")
+	//var tls = flag.Bool("tls", false, "Use TLS Secure Connection")
 	var numPubs = flag.Int("np", DefaultNumPubs, "Number of Concurrent Publishers")
 	var numSubs = flag.Int("ns", DefaultNumSubs, "Number of Concurrent Subscribers")
 	var numMsgs = flag.Int("n", DefaultNumMsgs, "Number of Messages to Publish")
 	var msgSize = flag.Int("ms", DefaultMessageSize, "Size of the message.")
 	var csvFile = flag.String("csv", "", "Save bench data to csv file")
-	var userCreds = flag.String("creds", "", "User Credentials File")
-	var nkeyFile = flag.String("nkey", "", "NKey Seed File")
+	//var userCreds = flag.String("creds", "", "User Credentials File")
+	//var nkeyFile = flag.String("nkey", "", "NKey Seed File")
 	var showHelp = flag.Bool("h", false, "Show help message")
 
 	log.SetFlags(0)
@@ -76,70 +82,135 @@ func main() {
 	}
 
 	// Connect Options.
-	opts := []nats.Option{nats.Name("NATS Benchmark")}
+	//opts := []nats.Option{nats.Name("NATS Benchmark")}
+	//
+	//if *userCreds != "" && *nkeyFile != "" {
+	//	log.Fatal("specify -seed or -creds")
+	//}
+	//
+	//// Use UserCredentials
+	//if *userCreds != "" {
+	//	opts = append(opts, nats.UserCredentials(*userCreds))
+	//}
+	//
+	//// Use Nkey authentication.
+	//if *nkeyFile != "" {
+	//	opt, err := nats.NkeyOptionFromSeed(*nkeyFile)
+	//	if err != nil {
+	//		log.Fatal(err)
+	//	}
+	//	opts = append(opts, opt)
+	//}
+	//
+	//// Use TLS specified
+	//if *tls {
+	//	opts = append(opts, nats.Secure(nil))
+	//}
 
-	if *userCreds != "" && *nkeyFile != "" {
-		log.Fatal("specify -seed or -creds")
-	}
-
-	// Use UserCredentials
-	if *userCreds != "" {
-		opts = append(opts, nats.UserCredentials(*userCreds))
-	}
-
-	// Use Nkey authentication.
-	if *nkeyFile != "" {
-		opt, err := nats.NkeyOptionFromSeed(*nkeyFile)
-		if err != nil {
-			log.Fatal(err)
-		}
-		opts = append(opts, opt)
-	}
-
-	// Use TLS specified
-	if *tls {
-		opts = append(opts, nats.Secure(nil))
-	}
-
-	benchmark = bench.NewBenchmark("NATS", *numSubs, *numPubs)
-
-	var donewg sync.WaitGroup
 	var subj = args[0]
 
-	donewg.Add(*numSubs)
-
+	var port = 8080
 	// Run Subscribers first
 	// This order is important for getting reliable benchmark result
 	// if publishers are running first, we are losing messages to void
 	// also waiting for Subscribers are done serves as synchronization method to signal test end.
 	// Note that we don't need to explicitly synchronize waiting for publishers.
 	for i := 0; i < *numSubs; i++ {
-		s, err := client.NewSubscriber(*urls, subj, *numMsgs, *msgSize, opts...)
-		if err != nil {
-			log.Fatalf("NewSubscriber failed: %v", err)
+		initReq := request.Init{
+			Mode:           request.Subscriber,
+			NatsServerUrls: strings.Split(*urls, ","),
+			Subject:        subj,
+			NumMsgs:        *numMsgs,
+			MsgSize:        *msgSize,
+			Options: request.Options{
+				Name: "NATS Benchmark",
+			},
 		}
-		go func() {
-			benchmark.AddSubSample(s.Run())
-			donewg.Done()
-		}()
+		data, err := json.Marshal(initReq)
+		if err != nil {
+			log.Fatalf("Init Subscriber failed: %v", err)
+		}
+		res, err := http.Post("http://localhost:"+strconv.Itoa(port)+"/init", "application/json", bytes.NewReader(data))
+		if err != nil {
+			log.Fatalf("Init Subscriber failed: %v", err)
+		}
+		response, err := io.ReadAll(res.Body)
+		if err != nil {
+			log.Fatalf("Init Subscriber failed: %v", err)
+		}
+		_ = res.Body.Close()
+		if res.StatusCode != http.StatusOK {
+			log.Fatalf("Init Subscriber failed: %s", string(response))
+		}
+		port++
 	}
 
 	// Now Publishers
 	pubCounts := bench.MsgsPerClient(*numMsgs, *numPubs)
 	for i := 0; i < *numPubs; i++ {
-		p, err := client.NewPublisher(*urls, subj, pubCounts[i], *msgSize, opts...)
-		if err != nil {
-			log.Fatalf("NewPublisher failed: %v", err)
+		initReq := request.Init{
+			Mode:           request.Publisher,
+			NatsServerUrls: strings.Split(*urls, ","),
+			Subject:        subj,
+			NumMsgs:        pubCounts[i],
+			MsgSize:        *msgSize,
+			Options: request.Options{
+				Name: "NATS Benchmark",
+			},
 		}
-		go func() {
-			benchmark.AddPubSample(p.Run())
-		}()
+		data, err := json.Marshal(initReq)
+		if err != nil {
+			log.Fatalf("Init Publisher failed: %v", err)
+		}
+		res, err := http.Post("http://localhost:"+strconv.Itoa(port)+"/init", "application/json", bytes.NewReader(data))
+		if err != nil {
+			log.Fatalf("Init Publisher failed: %v", err)
+		}
+		response, err := io.ReadAll(res.Body)
+		if err != nil {
+			log.Fatalf("Init Publisher failed: %v", err)
+		}
+		_ = res.Body.Close()
+		if res.StatusCode != http.StatusOK {
+			log.Fatalf("Init Publisher failed: %s", string(response))
+		}
+		port++
 	}
 
 	log.Printf("Starting benchmark [msgs=%d, msgsize=%d, pubs=%d, subs=%d]\n", *numMsgs, *msgSize, *numPubs, *numSubs)
 
-	donewg.Wait()
-
+	var wg sync.WaitGroup
+	wg.Add(*numSubs + *numPubs)
+	benchmark = bench.NewBenchmark("NATS", *numSubs, *numPubs)
+	port = 8080
+	for i := 0; i < *numSubs+*numPubs; i++ {
+		go func(i int) {
+			defer wg.Done()
+			res, err := http.Get("http://localhost:" + strconv.Itoa(port+i) + "/start")
+			if err != nil {
+				log.Fatalf("test run failed: %v", err)
+			}
+			response, err := io.ReadAll(res.Body)
+			if err != nil {
+				log.Fatalf("test run failed: %v", err)
+			}
+			_ = res.Body.Close()
+			if res.StatusCode != http.StatusOK {
+				log.Fatalf("test run failed: %s", string(response))
+			}
+			var sample bench.Sample
+			err = json.Unmarshal(response, &sample)
+			if err != nil {
+				log.Fatalf("test run failed: %v", err)
+			}
+			if i < *numSubs {
+				benchmark.AddSubSample(&sample)
+			} else {
+				benchmark.AddPubSample(&sample)
+			}
+		}(i)
+	}
+	wg.Wait()
 	benchmark.Close()
 
 	fmt.Print(benchmark.Report())
