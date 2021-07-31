@@ -1,4 +1,4 @@
-package main
+package client
 
 import (
 	"time"
@@ -27,7 +27,7 @@ func NewPublisher(urls, subject string, numMsgs, msgSize int, opts ...nats.Optio
 	}, nil
 }
 
-func (p *Publisher) run() *bench.Sample {
+func (p *Publisher) Run() *bench.Sample {
 	var msg []byte
 	if p.msgSize > 0 {
 		msg = make([]byte, p.msgSize)

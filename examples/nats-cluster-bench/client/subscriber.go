@@ -1,4 +1,4 @@
-package main
+package client
 
 import (
 	"time"
@@ -47,7 +47,7 @@ func (s *Subscriber) init() error {
 	return s.nc.Flush()
 }
 
-func (s *Subscriber) run() *bench.Sample {
+func (s *Subscriber) Run() *bench.Sample {
 	start := <-s.times
 	end := <-s.times
 	sample := bench.NewSample2(s.numMsgs, s.msgSize, start, end, s.nc.OutMsgs+s.nc.InMsgs, s.nc.OutBytes+s.nc.InBytes)

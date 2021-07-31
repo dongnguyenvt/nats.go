@@ -23,6 +23,7 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/bench"
+	"github.com/nats-io/nats.go/examples/nats-cluster-bench/client"
 )
 
 // Some sane defaults
@@ -113,12 +114,12 @@ func main() {
 	// also waiting for Subscribers are done serves as synchronization method to signal test end.
 	// Note that we don't need to explicitly synchronize waiting for publishers.
 	for i := 0; i < *numSubs; i++ {
-		s, err := NewSubscriber(*urls, subj, *numMsgs, *msgSize, opts...)
+		s, err := client.NewSubscriber(*urls, subj, *numMsgs, *msgSize, opts...)
 		if err != nil {
 			log.Fatalf("NewSubscriber failed: %v", err)
 		}
 		go func() {
-			benchmark.AddSubSample(s.run())
+			benchmark.AddSubSample(s.Run())
 			donewg.Done()
 		}()
 	}
@@ -126,12 +127,12 @@ func main() {
 	// Now Publishers
 	pubCounts := bench.MsgsPerClient(*numMsgs, *numPubs)
 	for i := 0; i < *numPubs; i++ {
-		p, err := NewPublisher(*urls, subj, pubCounts[i], *msgSize, opts...)
+		p, err := client.NewPublisher(*urls, subj, pubCounts[i], *msgSize, opts...)
 		if err != nil {
 			log.Fatalf("NewPublisher failed: %v", err)
 		}
 		go func() {
-			benchmark.AddPubSample(p.run())
+			benchmark.AddPubSample(p.Run())
 		}()
 	}
 
