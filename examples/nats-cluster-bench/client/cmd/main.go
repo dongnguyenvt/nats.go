@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	"sync/atomic"
 
 	"github.com/nats-io/nats.go/examples/nats-cluster-bench/client"
 	"github.com/nats-io/nats.go/examples/nats-cluster-bench/client/request"
@@ -80,6 +79,9 @@ func (c *Client) initBenchHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid client mode", http.StatusBadRequest)
 		return
 	}
+	c.mode = data.Mode
+	c.initialized = true
+	c.run = false
 }
 
 func (c *Client) startBenchHandler(w http.ResponseWriter, _ *http.Request) {
@@ -87,12 +89,16 @@ func (c *Client) startBenchHandler(w http.ResponseWriter, _ *http.Request) {
 		http.Error(w, "test session is not initialized", http.StatusBadRequest)
 		return
 	}
+	defer func() {
+		c.run = false
+	}()
 	switch c.mode {
 	case request.Publisher:
 		if c.pub == nil {
 			http.Error(w, "publisher not init", http.StatusInternalServerError)
 			return
 		}
+		c.run = true
 		encoder := json.NewEncoder(w)
 		_ = encoder.Encode(c.pub.Run())
 	case request.Subscriber:
@@ -100,6 +106,7 @@ func (c *Client) startBenchHandler(w http.ResponseWriter, _ *http.Request) {
 			http.Error(w, "subscriber not init", http.StatusInternalServerError)
 			return
 		}
+		c.run = true
 		encoder := json.NewEncoder(w)
 		_ = encoder.Encode(c.sub.Run())
 	default:
@@ -109,11 +116,11 @@ func (c *Client) startBenchHandler(w http.ResponseWriter, _ *http.Request) {
 }
 
 func (c *Client) isInitialized() bool {
-	return atomic.LoadInt32(&c.initialized) == 1 && c.mode != request.Unknown
+	return c.initialized && c.mode != request.Unknown
 }
 
 func (c *Client) isRunning() bool {
-	return atomic.LoadInt32(&c.run) == 1
+	return c.run
 }
 
 func (c *Client) reset() error {
@@ -121,15 +128,15 @@ func (c *Client) reset() error {
 		return errors.New("test session already run")
 	}
 	c.mode = request.Unknown
-	c.initialized = 0
-	c.run = 0
+	c.initialized = false
+	c.run = false
 	return nil
 }
 
 type Client struct {
 	mode        request.ClientMode
-	initialized int32
-	run         int32
+	initialized bool
+	run         bool
 	pub         *client.Publisher
 	sub         *client.Subscriber
 }
