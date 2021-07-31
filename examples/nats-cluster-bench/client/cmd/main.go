@@ -58,6 +58,7 @@ func (c *Client) initBenchHandler(w http.ResponseWriter, r *http.Request) {
 			data.Subject,
 			data.NumMsgs,
 			data.MsgSize,
+			data.Options.NatsOptions()...,
 		)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -69,6 +70,7 @@ func (c *Client) initBenchHandler(w http.ResponseWriter, r *http.Request) {
 			data.Subject,
 			data.NumMsgs,
 			data.MsgSize,
+			data.Options.NatsOptions()...,
 		)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
