@@ -109,11 +109,14 @@ func main() {
 
 	// Run Subscribers first
 	for i := 0; i < *numSubs; i++ {
-		s, err := NewSubscriber(*urls, subj, *numMsgs, *msgSize, &donewg, opts...)
+		s, err := NewSubscriber(*urls, subj, *numMsgs, *msgSize, opts...)
 		if err != nil {
 			log.Fatalf("NewSubscriber failed: %v", err)
 		}
-		go s.run()
+		go func() {
+			benchmark.AddSubSample(s.run())
+			donewg.Done()
+		}()
 	}
 
 	// Now Publishers

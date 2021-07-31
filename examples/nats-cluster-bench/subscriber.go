@@ -1,7 +1,6 @@
 package main
 
 import (
-	"sync"
 	"time"
 
 	"github.com/nats-io/nats.go"
@@ -12,12 +11,11 @@ type Subscriber struct {
 	numMsgs int
 	msgSize int
 	subject string
-	donewg  *sync.WaitGroup
 	times   chan time.Time
 	nc      *nats.Conn
 }
 
-func NewSubscriber(urls, subject string, numMsgs, msgSize int, donewg *sync.WaitGroup, opts ...nats.Option) (*Subscriber, error) {
+func NewSubscriber(urls, subject string, numMsgs, msgSize int, opts ...nats.Option) (*Subscriber, error) {
 	nc, err := nats.Connect(urls, opts...)
 	if err != nil {
 		return nil, err
@@ -26,7 +24,6 @@ func NewSubscriber(urls, subject string, numMsgs, msgSize int, donewg *sync.Wait
 		subject: subject,
 		numMsgs: numMsgs,
 		msgSize: msgSize,
-		donewg:  donewg,
 		times:   make(chan time.Time, 2),
 		nc:      nc,
 	}
@@ -50,10 +47,10 @@ func (s *Subscriber) init() error {
 	return s.nc.Flush()
 }
 
-func (s *Subscriber) run() {
+func (s *Subscriber) run() *bench.Sample {
 	start := <-s.times
 	end := <-s.times
-	benchmark.AddSubSample(bench.NewSample(s.numMsgs, s.msgSize, start, end, s.nc))
+	sample := bench.NewSample2(s.numMsgs, s.msgSize, start, end, s.nc.OutMsgs+s.nc.InMsgs, s.nc.OutBytes+s.nc.InBytes)
 	s.nc.Close()
-	s.donewg.Done()
+	return sample
 }
