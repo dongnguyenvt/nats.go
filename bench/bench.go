@@ -151,6 +151,20 @@ func NewSample(jobCount int, msgSize int, start, end time.Time, nc *nats.Conn) *
 	return &s
 }
 
+// NewSample2 creates a new Sample initialized to the provided values.
+// this API is different from NewSample since it doesn't need nats.Conn
+// also it doesn't suffer from integer overflow in 32-bit system
+func NewSample2(jobCount int, msgSize int, start, end time.Time, msgCnt, iOBytes uint64) *Sample {
+	return &Sample{
+		JobMsgCnt: jobCount,
+		MsgCnt:    msgCnt,
+		MsgBytes:  uint64(msgSize) * uint64(jobCount),
+		IOBytes:   iOBytes,
+		Start:     start,
+		End:       end,
+	}
+}
+
 // Throughput of bytes per second
 func (s *Sample) Throughput() float64 {
 	return float64(s.MsgBytes) / s.Duration().Seconds()
