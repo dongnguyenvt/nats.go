@@ -33,7 +33,7 @@ cleanup()
   done
 }
 
-start()
+start_cluster()
 {
   # TODO: docker-compose
   docker run --rm -p 4222:4222 --name natserver1 --net $NETWORK_NAME -d "$NAT_SERVER_IMAGE" -p 4222 -cluster nats://natserver1:4248 --cluster_name "$CLUSTER_NAME"
@@ -41,6 +41,13 @@ start()
   docker run --rm -p 6222:6222 --name natserver3 --net $NETWORK_NAME -d "$NAT_SERVER_IMAGE" -p 6222 -cluster nats://natserver3:6248 -routes nats://natserver1:4248 --cluster_name "$CLUSTER_NAME"
 }
 
+start()
+{
+  # TODO: docker-compose
+  docker run --rm -p 4222:4222 --name natserver1 --net $NETWORK_NAME -d "$NAT_SERVER_IMAGE" -p 4222
+}
+
 create_network
 cleanup
+#start_cluster
 start
