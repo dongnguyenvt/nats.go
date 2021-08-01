@@ -1,0 +1,41 @@
+{
+  "clean_up": false,
+  "clean_up_after_each_test": false,
+  "tls": true,
+  "user_creds": "",
+  "nkey_file": "",
+  "test_cases": [
+    {
+      "cluster_size": 1,
+      "num_pubs": 1,
+      "num_subs": 0,
+      "num_msgs": 6000,
+      "msg_size": 32,
+      "random_scheme": "cryptorand"
+    },
+    {
+      "cluster_size": 1,
+      "num_pubs": 1,
+      "num_subs": 2,
+      "num_msgs": 6000,
+      "msg_size": 32,
+      "random_scheme": "cryptorand"
+    },
+    {
+      "cluster_size": 2,
+      "num_pubs": 2,
+      "num_subs": 4,
+      "num_msgs": 6000,
+      "msg_size": 32,
+      "random_scheme": "cryptorand"
+    },
+    {
+      "cluster_size": 3,
+      "num_pubs": 3,
+      "num_subs": 6,
+      "num_msgs": 6000,
+      "msg_size": 32,
+      "random_scheme": "cryptorand"
+    }
+  ]
+}
