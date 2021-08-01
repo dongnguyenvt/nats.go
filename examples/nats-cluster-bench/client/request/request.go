@@ -8,11 +8,18 @@ import (
 )
 
 type ClientMode int
+type RandomScheme int
 
 const (
 	Unknown ClientMode = iota
 	Publisher
 	Subscriber
+)
+
+const (
+	None RandomScheme = iota
+	MathRand
+	CryptoRand
 )
 
 // Options are nats options
@@ -28,14 +35,20 @@ func (o Options) NatsOptions() (opts []nats.Option) {
 	return
 }
 
+type ClientConfig struct {
+	Mode ClientMode `json:"mode"`
+	// for publisher
+	RandomScheme `json:"random_scheme"`
+}
+
 // Init test request
 type Init struct {
-	Mode           ClientMode `json:"mode"`
-	NatsServerUrls []string   `json:"nats_server_urls"`
-	Subject        string     `json:"subject"`
-	NumMsgs        int        `json:"num_msgs"`
-	MsgSize        int        `json:"msg_size"`
-	Options        Options    `json:"options"`
+	Config         ClientConfig `json:"config"`
+	NatsServerUrls []string     `json:"nats_server_urls"`
+	Subject        string       `json:"subject"`
+	NumMsgs        int          `json:"num_msgs"`
+	MsgSize        int          `json:"msg_size"`
+	Options        Options      `json:"options"`
 }
 
 func ParseInitReq(req *http.Request) (Init, error) {

@@ -45,19 +45,20 @@ func (c *Client) initBenchHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	data, err := request.ParseInitReq(r)
+	req, err := request.ParseInitReq(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	switch data.Mode {
+	switch req.Config.Mode {
 	case request.Publisher:
 		c.pub, err = client.NewPublisher(
-			strings.Join(data.NatsServerUrls, ","),
-			data.Subject,
-			data.NumMsgs,
-			data.MsgSize,
-			data.Options.NatsOptions()...,
+			strings.Join(req.NatsServerUrls, ","),
+			req.Subject,
+			req.NumMsgs,
+			req.MsgSize,
+			req.Config.RandomScheme,
+			req.Options.NatsOptions()...,
 		)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -65,11 +66,11 @@ func (c *Client) initBenchHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	case request.Subscriber:
 		c.sub, err = client.NewSubscriber(
-			strings.Join(data.NatsServerUrls, ","),
-			data.Subject,
-			data.NumMsgs,
-			data.MsgSize,
-			data.Options.NatsOptions()...,
+			strings.Join(req.NatsServerUrls, ","),
+			req.Subject,
+			req.NumMsgs,
+			req.MsgSize,
+			req.Options.NatsOptions()...,
 		)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -79,7 +80,7 @@ func (c *Client) initBenchHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid client mode", http.StatusBadRequest)
 		return
 	}
-	c.mode = data.Mode
+	c.mode = req.Config.Mode
 	c.initialized = true
 	c.run = false
 }

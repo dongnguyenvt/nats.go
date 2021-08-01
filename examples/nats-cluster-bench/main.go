@@ -117,7 +117,9 @@ func main() {
 	// Note that we don't need to explicitly synchronize waiting for publishers.
 	for i := 0; i < *numSubs; i++ {
 		initReq := request.Init{
-			Mode:           request.Subscriber,
+			Config: request.ClientConfig{
+				Mode: request.Subscriber,
+			},
 			NatsServerUrls: strings.Split(*urls, ","),
 			Subject:        subj,
 			NumMsgs:        *numMsgs,
@@ -149,7 +151,10 @@ func main() {
 	pubCounts := bench.MsgsPerClient(*numMsgs, *numPubs)
 	for i := 0; i < *numPubs; i++ {
 		initReq := request.Init{
-			Mode:           request.Publisher,
+			Config: request.ClientConfig{
+				Mode:         request.Publisher,
+				RandomScheme: request.MathRand, // TODO: configurable
+			},
 			NatsServerUrls: strings.Split(*urls, ","),
 			Subject:        subj,
 			NumMsgs:        pubCounts[i],
