@@ -80,3 +80,27 @@ func ParseInitReq(req *http.Request) (Init, error) {
 	err := decoder.Decode(&data)
 	return data, err
 }
+
+func (scheme RandomScheme) String() string {
+	switch scheme {
+	case MathRand:
+		return "mathrand"
+	case CryptoRand:
+		return "cryptorand"
+	case None:
+		fallthrough
+	default:
+		return "none"
+	}
+}
+
+func RandomSchemeFromString(s string) RandomScheme {
+	switch s {
+	case "mathrand":
+		return MathRand
+	case "cryptorand":
+		return CryptoRand
+	default:
+		return None
+	}
+}

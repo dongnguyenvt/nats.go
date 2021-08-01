@@ -34,14 +34,15 @@ import (
 
 // Some sane defaults
 const (
-	DefaultNumMsgs     = 100000
-	DefaultNumPubs     = 1
-	DefaultNumSubs     = 0
-	DefaultMessageSize = 128
+	DefaultNumMsgs      = 100000
+	DefaultNumPubs      = 1
+	DefaultNumSubs      = 0
+	DefaultMessageSize  = 128
+	DefaultRandomScheme = "cryptorand"
 )
 
 func usage() {
-	log.Printf("Usage: nats-bench [-s server (%s)] [--tls] [-np NUM_PUBLISHERS] [-ns NUM_SUBSCRIBERS] [-n NUM_MSGS] [-ms MESSAGE_SIZE] [-csv csvfile] [-creds file] [-nkey file] <subject>\n", nats.DefaultURL)
+	log.Printf("Usage: nats-bench [-s server (%s)] [--tls] [-np NUM_PUBLISHERS] [-ns NUM_SUBSCRIBERS] [-n NUM_MSGS] [-ms MESSAGE_SIZE] [-csv csvfile] [-creds file] [-nkey file] [-rand scheme] <subject>\n", nats.DefaultURL)
 	flag.PrintDefaults()
 }
 
@@ -59,6 +60,7 @@ func main() {
 	var numSubs = flag.Int("ns", DefaultNumSubs, "Number of Concurrent Subscribers")
 	var numMsgs = flag.Int("n", DefaultNumMsgs, "Number of Messages to Publish")
 	var msgSize = flag.Int("ms", DefaultMessageSize, "Size of the message.")
+	var randomScheme = flag.String("rand", DefaultRandomScheme, "Publisher random scheme: cryptorand, mathrand and none")
 	var csvFile = flag.String("csv", "", "Save bench data to csv file")
 	var userCreds = flag.String("creds", "", "User Credentials File")
 	var nkeyFile = flag.String("nkey", "", "NKey Seed File")
@@ -75,6 +77,11 @@ func main() {
 	args := flag.Args()
 	if len(args) != 1 {
 		showUsageAndExit(1)
+	}
+
+	rs := request.RandomSchemeFromString(*randomScheme)
+	if rs == request.None && *randomScheme != "none" {
+		log.Fatalf("Not supported random scheme: %s", *randomScheme)
 	}
 
 	if *numMsgs <= 0 {
