@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright 2015-2021 The NATS Authors
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#!/usr/bin/env bash
-
 set -x
 set -e
 
@@ -21,6 +21,7 @@ CLUSTER_NAME="test-nats-cluster-bench"
 
 # TODO configurable
 NAT_SERVER_IMAGE="nats:latest"
+NAT_CLIENT_IMAGE="local/nats-client:latest"
 
 # TODO arguments
 CLUSTER_SIZE=3
@@ -39,7 +40,12 @@ create_network()
 
 cleanup()
 {
-  containers=$(docker ps -a | grep "$NAT_SERVER_IMAGE" | awk '{print $1}')
+  containers=$(docker ps -a | grep nats-server | awk '{print $1}')
+  for container in $containers
+  do
+    docker stop "$container"
+  done
+  containers=$(docker ps -a | grep nats-client | awk '{print $1}')
   for container in $containers
   do
     docker stop "$container"
@@ -49,31 +55,24 @@ cleanup()
 start_cluster()
 {
   # TODO: docker-compose
-  docker run --rm -p 4222:4222 --name natserver1 --net $NETWORK_NAME -d "$NAT_SERVER_IMAGE" -p 4222 -cluster nats://natserver1:4248 --cluster_name "$CLUSTER_NAME"
-  docker run --rm -p 5222:5222 --name natserver2 --net $NETWORK_NAME -d "$NAT_SERVER_IMAGE" -p 5222 -cluster nats://natserver2:5248 -routes nats://natserver1:4248 --cluster_name "$CLUSTER_NAME"
-  docker run --rm -p 6222:6222 --name natserver3 --net $NETWORK_NAME -d "$NAT_SERVER_IMAGE" -p 6222 -cluster nats://natserver3:6248 -routes nats://natserver1:4248 --cluster_name "$CLUSTER_NAME"
+  docker run --rm -p 4222:4222 --name nats-server-1 --net $NETWORK_NAME -d "$NAT_SERVER_IMAGE" -p 4222 -cluster nats://nats-server-1:4248 --cluster_name "$CLUSTER_NAME"
+  docker run --rm -p 5222:5222 --name nats-server-2 --net $NETWORK_NAME -d "$NAT_SERVER_IMAGE" -p 5222 -cluster nats://nats-server-2:5248 -routes nats://nats-server-1:4248 --cluster_name "$CLUSTER_NAME"
+  docker run --rm -p 6222:6222 --name nats-server-3 --net $NETWORK_NAME -d "$NAT_SERVER_IMAGE" -p 6222 -cluster nats://nats-server-3:6248 -routes nats://nats-server-1:4248 --cluster_name "$CLUSTER_NAME"
 }
 
 start()
 {
   # TODO: docker-compose
-  docker run --rm -p 4222:4222 --name natserver1 --net $NETWORK_NAME -d "$NAT_SERVER_IMAGE" -p 4222
+  docker run --rm -p 4222:4222 --name nats-server-1 --net $NETWORK_NAME -d "$NAT_SERVER_IMAGE" -p 4222
 }
 
 start_client()
 {
-  # build nats client binary
-  if [ ! -x nats-client ]
-  then
-    ./build.sh
-  fi
-  # kill previous run
-  kill `ps aux | grep nats-client | grep -v grep | awk '{print $2}'` > /dev/null 2>&1 || true
   # start all clients
   port=8080
   for i in `seq 1 12`
   do
-    ./nats-client -p $port &
+    docker run --rm -p $port:$port --name "nats-client-$i" --net $NETWORK_NAME -d "$NAT_CLIENT_IMAGE" -p $port
     port=$((port+1))
   done
   # TODO: ping clients to ensure it healthy
@@ -81,6 +80,6 @@ start_client()
 
 create_network
 cleanup
-#start_cluster
-start
+start_cluster
+#start
 start_client
