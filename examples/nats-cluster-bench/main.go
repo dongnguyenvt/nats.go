@@ -54,14 +54,14 @@ var benchmark *bench.Benchmark
 
 func main() {
 	var urls = flag.String("s", nats.DefaultURL, "The nats server URLs (separated by comma)")
-	//var tls = flag.Bool("tls", false, "Use TLS Secure Connection")
+	var tls = flag.Bool("tls", false, "Use TLS Secure Connection")
 	var numPubs = flag.Int("np", DefaultNumPubs, "Number of Concurrent Publishers")
 	var numSubs = flag.Int("ns", DefaultNumSubs, "Number of Concurrent Subscribers")
 	var numMsgs = flag.Int("n", DefaultNumMsgs, "Number of Messages to Publish")
 	var msgSize = flag.Int("ms", DefaultMessageSize, "Size of the message.")
 	var csvFile = flag.String("csv", "", "Save bench data to csv file")
-	//var userCreds = flag.String("creds", "", "User Credentials File")
-	//var nkeyFile = flag.String("nkey", "", "NKey Seed File")
+	var userCreds = flag.String("creds", "", "User Credentials File")
+	var nkeyFile = flag.String("nkey", "", "NKey Seed File")
 	var showHelp = flag.Bool("h", false, "Show help message")
 
 	log.SetFlags(0)
@@ -81,31 +81,16 @@ func main() {
 		log.Fatal("Number of messages should be greater than zero.")
 	}
 
-	// Connect Options.
-	//opts := []nats.Option{nats.Name("NATS Benchmark")}
-	//
-	//if *userCreds != "" && *nkeyFile != "" {
-	//	log.Fatal("specify -seed or -creds")
-	//}
-	//
-	//// Use UserCredentials
-	//if *userCreds != "" {
-	//	opts = append(opts, nats.UserCredentials(*userCreds))
-	//}
-	//
-	//// Use Nkey authentication.
-	//if *nkeyFile != "" {
-	//	opt, err := nats.NkeyOptionFromSeed(*nkeyFile)
-	//	if err != nil {
-	//		log.Fatal(err)
-	//	}
-	//	opts = append(opts, opt)
-	//}
-	//
-	//// Use TLS specified
-	//if *tls {
-	//	opts = append(opts, nats.Secure(nil))
-	//}
+	//Connect Options.
+	if *userCreds != "" && *nkeyFile != "" {
+		log.Fatal("specify -nkey or -creds")
+	}
+	reqOptions := request.Options{
+		Name:      "NATS Benchmark",
+		UserCreds: *userCreds,
+		NkeyFile:  *nkeyFile,
+		Tls:       *tls,
+	}
 
 	var subj = args[0]
 
@@ -124,9 +109,7 @@ func main() {
 			Subject:        subj,
 			NumMsgs:        *numMsgs,
 			MsgSize:        *msgSize,
-			Options: request.Options{
-				Name: "NATS Benchmark",
-			},
+			Options:        reqOptions,
 		}
 		data, err := json.Marshal(initReq)
 		if err != nil {
@@ -159,9 +142,7 @@ func main() {
 			Subject:        subj,
 			NumMsgs:        pubCounts[i],
 			MsgSize:        *msgSize,
-			Options: request.Options{
-				Name: "NATS Benchmark",
-			},
+			Options:        reqOptions,
 		}
 		data, err := json.Marshal(initReq)
 		if err != nil {

@@ -2,6 +2,7 @@ package request
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/nats-io/nats.go"
@@ -23,15 +24,37 @@ const (
 )
 
 // Options are nats options
+// Note: UserCreds and NkeyFile paths should be available on client image
 type Options struct {
-	Name string `json:"name"`
+	Name      string `json:"name"`
+	UserCreds string `json:"user_creds"`
+	NkeyFile  string `json:"nkey_file"`
+	Tls       bool   `json:"tls"`
 }
 
 func (o Options) NatsOptions() (opts []nats.Option) {
-	// TODO: more options
 	if len(o.Name) > 0 {
 		opts = append(opts, nats.Name(o.Name))
 	}
+	// Use UserCredentials
+	if o.UserCreds != "" {
+		opts = append(opts, nats.UserCredentials(o.UserCreds))
+	}
+
+	// Use Nkey authentication.
+	if o.NkeyFile != "" {
+		opt, err := nats.NkeyOptionFromSeed(o.NkeyFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		opts = append(opts, opt)
+	}
+
+	// Use TLS specified
+	if o.Tls {
+		opts = append(opts, nats.Secure(nil))
+	}
+
 	return
 }
 
