@@ -112,7 +112,7 @@ func main() {
 			Config: request.ClientConfig{
 				Mode: request.Subscriber,
 			},
-			NatsServerUrls: strings.Split(*urls, ","),
+			NatsServerUrls: natsServer(*urls, i),
 			Subject:        subj,
 			NumMsgs:        *numMsgs,
 			MsgSize:        *msgSize,
@@ -143,9 +143,9 @@ func main() {
 		initReq := request.Init{
 			Config: request.ClientConfig{
 				Mode:         request.Publisher,
-				RandomScheme: request.MathRand, // TODO: configurable
+				RandomScheme: request.MathRand,
 			},
-			NatsServerUrls: strings.Split(*urls, ","),
+			NatsServerUrls: natsServer(*urls, i),
 			Subject:        subj,
 			NumMsgs:        pubCounts[i],
 			MsgSize:        *msgSize,
@@ -213,4 +213,18 @@ func main() {
 		ioutil.WriteFile(*csvFile, []byte(csv), 0644)
 		fmt.Printf("Saved metric data in csv file %s\n", *csvFile)
 	}
+}
+
+// distribute nats-server
+func natsServer(urls string, i int) []string {
+	servers := strings.Split(urls, ",")
+	i = i % len(servers)
+	var ret = []string{servers[i]}
+	for j, server := range servers {
+		if i == j {
+			continue
+		}
+		ret = append(ret, server)
+	}
+	return ret
 }
