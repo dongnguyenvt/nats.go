@@ -101,10 +101,13 @@ func CreateContainer(image, name, port, networkname string, cmds []string) error
 
 func ListContainer(name string) ([]types.Container, error) {
 	ctx := context.Background()
-	return cli.ContainerList(ctx, types.ContainerListOptions{
-		All:     true,
-		Filters: filters.NewArgs(filters.Arg("name", name)),
-	})
+	options := types.ContainerListOptions{
+		All: true,
+	}
+	if len(name) > 0 {
+		options.Filters = filters.NewArgs(filters.Arg("name", name))
+	}
+	return cli.ContainerList(ctx, options)
 }
 
 func RemoveContainer(name string) error {
